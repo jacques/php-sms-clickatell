@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.5">
+<package version="1.0" packagerversion="1.5.4">
  <name>SMS_Clickatell</name>
  <summary>Enables sending SMS Messages via Clickatell HTTPS API</summary>
  <description>Enables sending SMS Messages via Clickatell HTTPS API
@@ -14,14 +14,19 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.6.2</version>
-  <date>2005-12-18</date>
+  <version>0.6.3</version>
+  <date>2008-04-15</date>
   <license>PHP License</license>
   <state>beta</state>
   <notes>* Bug fixes in sendmsg ()
+* Added SMS_Clickatell::routecoverage function to query if a msisdn is
+  routable via Clickatell
+* Refactoring to work only with PHP 5
+* Work out the actual required features so clickatells updated routing
+  engine can be less problematic
   </notes>
   <deps>
-   <dep type="php" rel="ge" version="4.3.0"/>
+   <dep type="php" rel="ge" version="4.4.0"/>
    <dep type="ext" rel="has">curl</dep>
   </deps>
   <provides type="class" name="SMS_Clickatell" />
@@ -36,11 +41,24 @@
   <provides type="function" name="SMS_Clickatell::tokenpay" />
   <provides type="function" name="SMS_Clickatell::_curl" />
   <provides type="function" name="SMS_Clickatell::querymsg" />
+  <provides type="function" name="SMS_Clickatell::routecoverage" />
   <filelist>
-   <file role="php" baseinstalldir="SMS" md5sum="249f525bbed93ab2ed4a7da357e518da" name="Clickatell.php"/>
+   <file role="php" baseinstalldir="SMS" md5sum="7e15bb8533039c7d850be76f5c7f9c09" name="Clickatell.php"/>
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.6.3</version>
+    <date>2008-04-15</date>
+    <state>beta</state>
+    <notes>* Bug fixes in sendmsg ()
+* Added SMS_Clickatell::routecoverage function to query if a msisdn is
+  routable via Clickatell
+* Refactoring to work only with PHP 5
+* Work out the actual required features so clickatells updated routing 
+  engine can be less problematic
+    </notes>
+   </release>
    <release>
     <version>0.6.2</version>
     <date>2005-12-18</date>
