@@ -13,14 +13,17 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.6</version>
-    <date>2005-01-29</date>
+    <version>0.6.1</version>
+    <date>2005-05-25</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes>
- * Added function tokenpay() to spend vouchers generated on the Clickatell
-   Website.
-    </notes>
+    <notes>* Check vouchers are numeric else raise a PEAR Error.
+* All functions requiring to post to the Clickatell API server
+  use SMS_Clickatell::_curl</notes>
+    <deps>
+      <dep type="php" rel="ge" version="4.3.0"/>
+      <dep type="ext" rel="has">curl</dep>
+    </deps>
     <provides type="class" name="SMS_Clickatell" />
     <provides type="function" name="SMS_Clickatell::auth" />
     <provides type="function" name="SMS_Clickatell::deletemsg" />
@@ -31,57 +34,70 @@
     <provides type="function" name="SMS_Clicaktell::querymsg" />
     <provides type="function" name="SMS_Clickatell::sendmsg" />
     <provides type="function" name="SMS_Clickatell::tokenpay" />
+    <provides type="function" name="SMS_Clickatell::_curl" />
     <filelist>
-      <file role="php" baseinstalldir="SMS" md5sum="c405dbecdbf735a15b093b63cfa7cf13" name="Clickatell.php" />
+      <file role="php" baseinstalldir="SMS" md5sum="14b9df9cb81865751528760561e7ee4a" name="Clickatell.php"/>
     </filelist>
   </release>
   <changelog>
     <release>
-      <version>0.6</version>
+      <version>0.6.1</version>
+      <date>2005-05-25</date>
       <state>beta</state>
-      <notes>
- * Added function tokenpay() to spend vouchers generated on the Clickatell
-   Website.
-      </notes>
+      <notes>* Check vouchers are numeric else raise a PEAR Error.
+* All functions requiring to post to the Clickatell API server
+  use SMS_Clickatell::_curl
+     
+</notes>
+    </release>
+    <release>
+      <version>0.6</version>
+      <date>2005-01-29</date>
+      <state>beta</state>
+      <notes>* Added function tokenpay() to spend vouchers generated on the Clickatell
+  Website.
+     
+</notes>
     </release>
     <release>
       <version>0.5</version>
       <state>beta</state>
-      <notes>
- * Added function getmsgcharge() to get cost of message delivered via
-   Clickatell gateway.
-      </notes>
+      <notes>* Added function getmsgcharge() to get cost of message delivered via
+  Clickatell gateway.
+     
+</notes>
     </release>
     <release>
       <version>0.4</version>
       <state>beta</state>
-      <notes>
- * Allow users to specify which queue to use.
- * Added deletemsg()
- * Allow users to specify if they want to escalate message delivery
-      </notes>
+      <notes>* Allow users to specify which queue to use.
+* Added deletemsg()
+* Allow users to specify if they want to escalate message delivery
+     
+</notes>
     </release>
     <release>
       <version>0.3</version>
       <state>beta</state>
-      <notes>
- * Changes for required features which we utilise.
-      </notes>
+      <notes>* Changes for required features which we utilise.
+     
+</notes>
     </release>
     <release>
       <version>0.2</version>
       <date>2004-01-30</date>
       <state>beta</state>
-      <notes>
- * Added init() and getbalance()
- * Login details no longer hardcoded into script.
-      </notes>
+      <notes>* Added init() and getbalance()
+* Login details no longer hardcoded into script.
+     
+</notes>
     </release>
     <release>
       <version>0.1</version>
       <date>2003-12-30</date>
       <state>beta</state>
-      <notes>Initial release for PEAR proposal</notes>
+      <notes>Initial release for PEAR proposal
+</notes>
     </release>
   </changelog>
 </package>

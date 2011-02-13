@@ -19,11 +19,12 @@
 require_once 'PEAR.php';
 
 /**
- * PHP Interface into Clickatell API
+ * PHP Interface into the Clickatell API
  *
  * @author	Jacques Marneweck <jacques@php.net>
  * @copyright	2002-2005 Jacques Marneweck
- * @version	$Id: Clickatell.php,v 1.23 2005/01/29 10:34:26 jacques Exp $
+ * @license	http://www.php.net/license/3_0.txt	PHP License
+ * @version	$Id: Clickatell.php,v 1.27 2005/05/25 21:36:13 jacques Exp $
  * @access	public
  * @package	SMS
  */
@@ -58,6 +59,11 @@ class SMS_Clickatell {
 	 * @var string
 	 */
 	var $_api_id = null;
+
+	/**
+	 * Curl handle resource id
+	 */
+	var $_ch;
 
 	/**
 	 * Temporary file resource id
@@ -141,38 +147,11 @@ class SMS_Clickatell {
 	function auth () {
 		$_url = $this->_api_server . "/http/auth";
 		$_post_data = "user=" . $this->_username . "&password=" . $this->_password . "&api_id=" . $this->_api_id;
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
 
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
-
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
 		}
-
-		curl_close($_curl);
-
-		rewind($this->_fp);
-
-		$pairs = "";
-		while ($str = fgets($this->_fp, 4096)) {
-			$pairs .= $str;
-		}
-		fclose($this->_fp);
-
-		$response['data'] = $pairs;
-		unset($pairs);
-		asort($response);
 		$sess = split(":", $response['data']);
 
 		$this->_session_id = trim($sess[1]);
@@ -196,37 +175,10 @@ class SMS_Clickatell {
 		$_url = $this->_api_server . "/http/delmsg";
 		$_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . $apimsgid;
 
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
-
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
-
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
 		}
-
-		curl_close($_curl);
-		rewind($this->_fp);
-
-		$pairs = "";
-		while ($str = fgets($this->_fp, 4096)) {
-			$pairs .= $str;
-		}
-		fclose($this->_fp);
-
-		$response['data'] = $pairs;
-		unset($pairs);
-		asort($response);
 		$sess = split(":", $response['data']);
 
 		$deleted = preg_split("/[\s:]+/", $response['data']);
@@ -247,36 +199,10 @@ class SMS_Clickatell {
 		$_url = $this->_api_server . "/http/getbalance";
 		$_post_data = "session_id=" . $this->_session_id;
 
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
-
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
-
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
 		}
-		curl_close($_curl);
-
-		rewind($this->_fp);
-
-		$pairs = "";
-		while ($str = fgets($this->_fp, 4096)) {
-			$pairs .= $str;
-		}
-		fclose($this->_fp);
-
-		$response['data'] = $pairs;
-		asort($response);
 		$send = split(":", $response['data']);
 
 		if ($send[0] == "Credit") {
@@ -296,36 +222,14 @@ class SMS_Clickatell {
 		$_url = $this->_api_server . "/http/getmsgcharge";
 		$_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . trim($apimsgid);
 
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
-
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
-
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+		if (strlen($apimsgid) < 32 || strlen($apimsgid) > 32) {
+			return PEAR::raiseError('Invalid API Message Id');
 		}
-		curl_close($_curl);
 
-		rewind($this->_fp);
-		
-		$pairs = "";
-		while ($str = fgets($this->_fp, 4096)) {
-			$pairs .= $str;
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
 		}
-		fclose($this->_fp);
-
-		$response['data'] = $pairs;
-		asort($response);
 		$charge = preg_split("/[\s:]+/", $response['data']);
 
 		if ($charge[2] == "charge") {
@@ -380,6 +284,10 @@ class SMS_Clickatell {
 				return PEAR::raiseError('Missing parameter api_id.');
 			}
 
+			if (!is_numeric($_params['api_id'])) {
+				return PEAR::raiseError('Invalid api_id.');
+			}
+
 			$this->_username = $_params['user'];
 			$this->_password = $_params['pass'];
 			$this->_api_id = $_params['api_id'];
@@ -398,37 +306,11 @@ class SMS_Clickatell {
 	function ping () {
 		$_url = $this->_api_server . "/http/ping";
 		$_post_data = "session_id=" . $this->_session_id;
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
 
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
-
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
 		}
-		curl_close($_curl);
-
-		rewind($this->_fp);
-
-		$pairs = "";
-		while ($str = fgets($this->_fp, 4096)) {
-			$pairs .= $str;
-		}
-		fclose($this->_fp);
-
-		$response['data'] = $pairs;
-		unset($pairs);
-		asort($response);
 		$sess = split(":", $response['data']);
 
 		if ($sess[0] == "OK") {
@@ -451,37 +333,11 @@ class SMS_Clickatell {
 	function querymsg ($apimsgid) {
 		$_url = $this->_api_server . "/http/querymsg";
 		$_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . $apimsgid;
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
 
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
-
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
 		}
-		curl_close($_curl);
-
-		rewind($this->_fp);
-
-		$pairs = "";
-		while ($str = fgets($this->_fp, 4096)) {
-			$pairs .= $str;
-		}
-		fclose($this->_fp);
-
-		$response['data'] = $pairs;
-		unset($pairs);
-		asort($response);
 		$status = split(" ", $response['data']);
 
 		if ($status[0] == "ID:") {
@@ -565,36 +421,10 @@ class SMS_Clickatell {
 			}
 		}
 
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
-
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
-
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
 		}
-		curl_close($_curl);
-
-		rewind($this->_fp);
-
-		$pairs = "";
-		while ($str = fgets($this->_fp, 4096)) {
-			$pairs .= $str;
-		}
-		fclose($this->_fp);
-
-		$response['data'] = $pairs;
-		asort($response);
 		$send = split(":", $response['data']);
 
 		if ($send[0] == "ID") {
@@ -617,30 +447,68 @@ class SMS_Clickatell {
 		$_url = $this->_api_server . "/http/token_pay";
 		$_post_data = "session_id=" . $this->_session_id . "&token=" . trim($voucher);
 
-		if (strlen($voucher) < 16 || strlen($voucher) > 16) {
+		if (!is_numeric($voucher) || strlen($voucher) < 16 || strlen($voucher) > 16) {
 			return (PEAR::raiseError('Invalid voucher number'));
 		}
 
-		$this->_fp = tmpfile();
-		$_curl = curl_init();
-		curl_setopt($_curl, CURLOPT_URL, $_url);
-		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
-		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
-		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
-		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
-		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
+		$response = $this->_curl($_url, $_post_data);
+		if (PEAR::isError($response)) {
+			return $response;
+		}
+		$sess = split(":", $response['data']);
 
-		$status = curl_exec($_curl);
-		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
+		$paid = preg_split("/[\s:]+/", $response['data']);
+		if ($paid[0] == "OK") {
+			return true; 
+		} else {
+			return PEAR::raiseError($response['data']);
+		}
+	}
 
-		if ($status) {
-			$response['error'] = curl_error($_curl);
-			$response['errno'] = curl_errno($_curl);
+	/**
+	 * Perform curl stuff
+	 *
+	 * @param   string  URL to call
+	 * @param   string  HTTP Post Data
+	 * @return  mixed   HTTP response body or PEAR Error Object
+	 * @access	private
+	 */
+	function _curl ($url, $post_data) {
+		/**
+		 * Reuse the curl handle
+		 */
+		if (!is_resource($this->_ch)) {
+			$this->_ch = curl_init();
+			curl_setopt($this->_ch, CURLOPT_TIMEOUT, 20);
+			curl_setopt($this->_ch, CURLOPT_VERBOSE, 1);
+			curl_setopt($this->_ch, CURLOPT_FAILONERROR, 1);
+			curl_setopt($this->_ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($this->_ch, CURLOPT_COOKIEJAR, "/dev/null");
+			curl_setopt($this->_ch, CURLOPT_SSL_VERIFYHOST, 2);
+			curl_setopt($this->_ch, CURLOPT_USERAGENT, 'SMS_Clickatell 0.6.1 - http://www.powertrip.co.za/PEAR/SMS_Clickatell/');
 		}
 
-		curl_close($_curl);
+		$this->_fp = tmpfile();
+
+		curl_setopt($this->_ch, CURLOPT_URL, $url);
+		curl_setopt($this->_ch, CURLOPT_POST, 1);
+		curl_setopt($this->_ch, CURLOPT_POSTFIELDS, $post_data);
+		curl_setopt($this->_ch, CURLOPT_FILE, $this->_fp);
+
+		$status = curl_exec($this->_ch);
+		$response['http_code'] = curl_getinfo($this->_ch, CURLINFO_HTTP_CODE);
+
+		if (empty($response['http_code'])) {
+			return PEAR::raiseError ('No HTTP Status Code was returned.');
+		} elseif ($response['http_code'] === 0) {
+			return PEAR::raiseError ('Cannot connect to the Clickatell API Server.');
+		}
+
+		if ($status) {
+			$response['error'] = curl_error($this->_ch);
+			$response['errno'] = curl_errno($this->_ch);
+		}
+
 		rewind($this->_fp);
 
 		$pairs = "";
@@ -652,14 +520,8 @@ class SMS_Clickatell {
 		$response['data'] = $pairs;
 		unset($pairs);
 		asort($response);
-		$sess = split(":", $response['data']);
 
-		$paid = preg_split("/[\s:]+/", $response['data']);
-		if ($paid[0] == "OK") {
-			return true; 
-		} else {
-			return PEAR::raiseError($response['data']);
-		}
+		return ($response);
 	}
 }
 
