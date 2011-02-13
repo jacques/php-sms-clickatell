@@ -13,11 +13,11 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.2</version>
-    <date>2004-02-15</date>
+    <version>0.3</version>
+    <date>2004-04-29</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes>Initial release for PEAR proposal</notes>
+    <notes>Changes for required features we utilise.</notes>
     <provides type="class" name="SMS_Clickatell" />
     <provides type="function" name="SMS_Clickatell::auth" />
     <provides type="function" name="SMS_Clickatell::getbalance" />
@@ -26,10 +26,17 @@
     <provides type="function" name="SMS_Clicaktell::querymsg" />
     <provides type="function" name="SMS_Clickatell::sendmsg" />
     <filelist>
-      <file role="php" baseinstalldir="SMS" md5sum="ae1536635364d92498a3f618aeecb256" name="Clickatell.php" />
+      <file role="php" baseinstalldir="SMS" md5sum="0f23ff9bf1958c1d4b27296a5073d948" name="Clickatell.php" />
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>0.3</version>
+      <state>beta</state>
+      <notes>
+ * Changes for required features which we utilise.
+      </notes>
+    </release>
     <release>
       <version>0.2</version>
       <date>2004-01-30</date>

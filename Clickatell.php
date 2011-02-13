@@ -2,7 +2,7 @@
 /* +----------------------------------------------------------------------+
  * | SMS_Clickatell                                                       |
  * +----------------------------------------------------------------------+
- * | Copyright (c) 2002-2003 Jacques Marneweck                            |
+ * | Copyright (c) 2002-2004 Jacques Marneweck                            |
  * +----------------------------------------------------------------------+
  * | This source file is subject to version 2.02 of the PHP license,      |
  * | that is bundled with this package in the file LICENSE, and is        |
@@ -22,7 +22,8 @@ require_once 'PEAR.php';
  * PHP Interface into Clickatell API
  *
  * @author	Jacques Marneweck <jacques@php.net>
- * @version	$Id: Clickatell.php,v 1.10 2004/01/30 11:09:55 jacques Exp $
+ * @copyright	2002-2004 Jacques Marneweck
+ * @version	$Id: Clickatell.php,v 1.13 2004/04/29 11:11:35 jacques Exp $
  * @access	public
  * @package	SMS
  */
@@ -187,11 +188,6 @@ class SMS_Clickatell {
 	 *
 	 * @access	public
 	 * @since	1.9
-	 */
-	/**
-	 * Get balance
-	 *
-	 * @since
 	 */
 	function getbalance () {
 		$_url = $this->_api_server . "/http/getbalance";
@@ -386,6 +382,37 @@ class SMS_Clickatell {
 
 		if ($_msg['msg_type'] != "SMS_TEXT") {
 			$_post_data .= $_post_data . "&msg_type=" . $_msg['msg_type'];
+		}
+
+		$req_feat = 0;
+		/**
+		 * Normal text message
+		 */
+		if ($_msg['msg_type'] == 'SMS_TEXT') {
+			$req_feat += 1;
+		}
+		/**
+		 * We set the sender id is alpha numeric or numeric
+		 * then we change the sender from data.
+		 */
+		if (is_numeric($_msg['from'])) {
+			$req_feat += 32;
+		} elseif (is_string($_msg['from'])) {
+			$req_feat += 16;
+		}
+		/**
+		 * Flash Messaging
+		 */
+		if ($_msg['msg_type'] == 'SMS_FLASH') {
+			$req_feat += 512;
+		}
+		/**
+		 * Delivery Acknowledgments
+		 */
+		$req_feat += 8192;
+
+		if (!empty($req_feat)) {
+			$_post_data .= "&req_feat=" . $req_feat;
 		}
 
 		$this->_fp = tmpfile();
