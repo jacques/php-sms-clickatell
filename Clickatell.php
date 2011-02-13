@@ -23,7 +23,7 @@ require_once 'PEAR.php';
  *
  * @author	Jacques Marneweck <jacques@php.net>
  * @copyright	2002-2004 Jacques Marneweck
- * @version	$Id: Clickatell.php,v 1.13 2004/04/29 11:11:35 jacques Exp $
+ * @version	$Id: Clickatell.php,v 1.18 2004/05/29 11:58:24 jacques Exp $
  * @access	public
  * @package	SMS
  */
@@ -75,6 +75,7 @@ class SMS_Clickatell {
 		'003' => 'Session ID expired',
 		'004' => 'Account frozen',
 		'005' => 'Missing session ID',
+		'007' => 'IP lockdown violation',
 		'101' => 'Invalid or missing parameters',
 		'102' => 'Invalid UDH. (User Data Header)',
 		'103' => 'Unknown apismgid (API Message ID)',
@@ -146,7 +147,7 @@ class SMS_Clickatell {
 		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
 		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
 		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 1);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
 		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
@@ -184,6 +185,59 @@ class SMS_Clickatell {
 	}
 
 	/**
+	 * Delete message queued by Clickatell which has not been passed
+	 * onto the SMSC.
+	 *
+	 * @access	public
+	 * @since	1.14
+	 * @see		http://www.clickatell.com/downloads/Clickatell_http_2.2.2.pdf
+	 */
+	function deletemsg ($apimsgid) {
+		$_url = $this->_api_server . "/http/delmsg";
+		$_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . $apimsgid;
+
+		$this->_fp = tmpfile();
+		$_curl = curl_init();
+		curl_setopt($_curl, CURLOPT_URL, $_url);
+		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
+		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
+		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
+		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
+		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
+
+		$status = curl_exec($_curl);
+		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
+
+		if ($status) {
+			$response['error'] = curl_error($_curl);
+			$response['errno'] = curl_errno($_curl);
+		}
+
+		curl_close($_curl);
+		rewind($this->_fp);
+
+		$pairs = "";
+		while ($str = fgets($this->_fp, 4096)) {
+			$pairs .= $str;
+		}
+		fclose($this->_fp);
+
+		$response['data'] = $pairs;
+		unset($pairs);
+		asort($response);
+		$sess = split(":", $response['data']);
+
+		$deleted = preg_split("/[\s:]+/", $response['data']);
+		if ($deleted[0] == "ID") {
+			return (array($deleted[1], $deleted[3]));
+		} else {
+			return PEAR::raiseError($response['data']);
+		}
+	}
+
+	/**
 	 * Query balance of remaining SMS credits
 	 *
 	 * @access	public
@@ -199,7 +253,7 @@ class SMS_Clickatell {
 		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
 		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
 		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 1);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
 		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
@@ -276,7 +330,7 @@ class SMS_Clickatell {
 		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
 		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
 		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 1);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
 		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
@@ -329,7 +383,7 @@ class SMS_Clickatell {
 		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
 		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
 		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 1);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
 		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
@@ -384,6 +438,16 @@ class SMS_Clickatell {
 			$_post_data .= $_post_data . "&msg_type=" . $_msg['msg_type'];
 		}
 
+		/**
+		 * Check if we are using a queue when sending as each account
+		 * with Clickatell is assigned three queues namely 1, 2 and 3.
+		 */
+		if (isset($_msg['queue']) && is_numeric($_msg['queue'])) {
+			if (in_array($_msg['queue'], range(1, 3))) {
+				$_post_data .= $_post_data . "&queue=" . $_msg['queue'];
+			}
+		}
+
 		$req_feat = 0;
 		/**
 		 * Normal text message
@@ -415,13 +479,25 @@ class SMS_Clickatell {
 			$_post_data .= "&req_feat=" . $req_feat;
 		}
 
+		/**
+		 * Must we escalate message delivery if message is stuck in
+		 * the queue at Clickatell?
+		 */
+		if ($_msg['escalate']) {
+			if (isset($_msg['escalate']) && is_numeric($_msg['escalate'])) {
+				if (in_array($_msg['escalate'], range(1, 2))) {
+					$_post_data .= $_post_data . "&escalate=" . $_msg['escalate'];
+				}
+			}
+		}
+
 		$this->_fp = tmpfile();
 		$_curl = curl_init();
 		curl_setopt($_curl, CURLOPT_URL, $_url);
 		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
 		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
 		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
-		curl_setopt($_curl, CURLOPT_VERBOSE, 1);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
 		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
 		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");

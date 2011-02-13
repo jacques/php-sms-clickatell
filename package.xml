@@ -13,11 +13,15 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.3</version>
-    <date>2004-04-29</date>
+    <version>0.4</version>
+    <date>2004-06-04</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes>Changes for required features we utilise.</notes>
+    <notes>
+ * Allow users to specify which queue to use.
+ * Added deletemsg()
+ * Allow users to specify if they want to escalate message delivery.
+    </notes>
     <provides type="class" name="SMS_Clickatell" />
     <provides type="function" name="SMS_Clickatell::auth" />
     <provides type="function" name="SMS_Clickatell::getbalance" />
@@ -26,10 +30,19 @@
     <provides type="function" name="SMS_Clicaktell::querymsg" />
     <provides type="function" name="SMS_Clickatell::sendmsg" />
     <filelist>
-      <file role="php" baseinstalldir="SMS" md5sum="0f23ff9bf1958c1d4b27296a5073d948" name="Clickatell.php" />
+      <file role="php" baseinstalldir="SMS" md5sum="56d003f2c0cedcf77305d54c9186bfc7" name="Clickatell.php" />
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>0.4</version>
+      <state>beta</state>
+      <notes>
+ * Allow users to specify which queue to use.
+ * Added deletemsg()
+ * Allow users to specify if they want to escalate message delivery
+      </notes>
+    </release>
     <release>
       <version>0.3</version>
       <state>beta</state>
