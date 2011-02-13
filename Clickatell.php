@@ -4,10 +4,10 @@
  * +----------------------------------------------------------------------+
  * | Copyright (c) 2002-2004 Jacques Marneweck                            |
  * +----------------------------------------------------------------------+
- * | This source file is subject to version 2.02 of the PHP license,      |
+ * | This source file is subject to version 3.0 of the PHP license,       |
  * | that is bundled with this package in the file LICENSE, and is        |
  * | available at through the world-wide-web at                           |
- * | http://www.php.net/license/2_02.txt.                                 |
+ * | http://www.php.net/license/3_0.txt.                                  |
  * | If you did not receive a copy of the PHP license and are unable to   |
  * | obtain it through the world-wide-web, please send a note to          |
  * | license@php.net so we can mail you a copy immediately.               |
@@ -23,7 +23,7 @@ require_once 'PEAR.php';
  *
  * @author	Jacques Marneweck <jacques@php.net>
  * @copyright	2002-2004 Jacques Marneweck
- * @version	$Id: Clickatell.php,v 1.18 2004/05/29 11:58:24 jacques Exp $
+ * @version	$Id: Clickatell.php,v 1.21 2004/11/13 17:36:35 jacques Exp $
  * @access	public
  * @package	SMS
  */
@@ -287,6 +287,58 @@ class SMS_Clickatell {
 	}
 
 	/**
+	 * Determine the cost of the message which was sent
+	 *
+	 * @param	string	api_msg_id
+	 * @since	1.20
+	 */
+	function getmsgcharge ($apimsgid) {
+		$_url = $this->_api_server . "/http/getmsgcharge";
+		$_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . trim($apimsgid);
+
+		$this->_fp = tmpfile();
+		$_curl = curl_init();
+		curl_setopt($_curl, CURLOPT_URL, $_url);
+		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
+		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
+		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
+		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
+		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
+
+		$status = curl_exec($_curl);
+		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
+
+		if ($status) {
+			$response['error'] = curl_error($_curl);
+			$response['errno'] = curl_errno($_curl);
+		}
+		curl_close($_curl);
+
+		rewind($this->_fp);
+		
+		$pairs = "";
+		while ($str = fgets($this->_fp, 4096)) {
+			$pairs .= $str;
+		}
+		fclose($this->_fp);
+
+		$response['data'] = $pairs;
+		asort($response);
+		$charge = preg_split("/[\s:]+/", $response['data']);
+
+		if ($charge[2] == "charge") {
+			return (array($charge[3], $charge[5]));
+		}
+
+		/**
+		 * Return charge and message status
+		 */
+		return (array($charge[3], $charge[5]));
+	}
+
+	/**
 	 * Initilaise the Clicaktell SMS Class
 	 *
 	 * @access	public
@@ -483,8 +535,8 @@ class SMS_Clickatell {
 		 * Must we escalate message delivery if message is stuck in
 		 * the queue at Clickatell?
 		 */
-		if ($_msg['escalate']) {
-			if (isset($_msg['escalate']) && is_numeric($_msg['escalate'])) {
+		if (isset($_msg['escalate']) && !empty($_msg['escalate'])) {
+			if (is_numeric($_msg['escalate'])) {
 				if (in_array($_msg['escalate'], range(1, 2))) {
 					$_post_data .= $_post_data . "&escalate=" . $_msg['escalate'];
 				}

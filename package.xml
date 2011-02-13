@@ -13,27 +13,36 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.4</version>
-    <date>2004-06-04</date>
+    <version>0.5</version>
+    <date>2004-11-13</date>
     <license>PHP License</license>
     <state>beta</state>
     <notes>
- * Allow users to specify which queue to use.
- * Added deletemsg()
- * Allow users to specify if they want to escalate message delivery.
+ * Added function getmsgcharge() to get cost of message delivered via
+   Clickatell gateway.
     </notes>
     <provides type="class" name="SMS_Clickatell" />
     <provides type="function" name="SMS_Clickatell::auth" />
+    <provides type="function" name="SMS_Clickatell::deletemsg" />
     <provides type="function" name="SMS_Clickatell::getbalance" />
+    <provides type="function" name="SMS_Clickatell::getmsgcharge" />
     <provides type="function" name="SMS_Clickatell::init" />
     <provides type="function" name="SMS_Clickatell::ping" />
     <provides type="function" name="SMS_Clicaktell::querymsg" />
     <provides type="function" name="SMS_Clickatell::sendmsg" />
     <filelist>
-      <file role="php" baseinstalldir="SMS" md5sum="56d003f2c0cedcf77305d54c9186bfc7" name="Clickatell.php" />
+      <file role="php" baseinstalldir="SMS" md5sum="2cbd6f411fbe36cb080c71e9702279bc" name="Clickatell.php" />
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>0.5</version>
+      <state>beta</state>
+      <notes>
+ * Added function getmsgcharge() to get cost of message delivered via
+   Clickatell gateway.
+      </notes>
+    </release>
     <release>
       <version>0.4</version>
       <state>beta</state>
