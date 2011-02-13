@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<package version="1.0">
+  <name>SMS_Clickatell</name>
+  <summary>Enables sending SMS Messages via Clickatell HTTPS API</summary>
+  <description>Enables sending SMS Messages via Clickatell HTTPS API</description>
+  <maintainers>
+    <maintainer>
+      <user>jacques</user>
+      <name>Jacques Marneweck</name>
+      <email>jacques@php.net</email>
+      <role>lead</role>
+    </maintainer>
+  </maintainers>
+  <release>
+    <version>0.1</version>
+    <date>2003-12-30</date>
+    <license>PHP License</license>
+    <state>beta</state>
+    <notes>Initial release for PEAR proposal</notes>
+    <provides type="class" name="SMS_Clickatell" />
+    <provides type="function" name="SMS_Clickatell::auth" />
+    <provides type="function" name="SMS_Clickatell::ping" />
+    <provides type="function" name="SMS_Clicaktell::querymsg" />
+    <provides type="function" name="SMS_Clickatell::sendmsg" />
+    <filelist>
+      <file role="php" baseinstalldir="SMS" md5sum="a814a3f70647c32cd7775d1767cc5b26" name="Clickatell.php" />
+    </filelist>
+  </release>
+  <changelog>
+    <release>
+      <version>0.1</version>
+      <date>2003-12-30</date>
+      <state>beta</state>
+      <notes>Initial release for PEAR proposal</notes>
+    </release>
+  </changelog>
+</package>
