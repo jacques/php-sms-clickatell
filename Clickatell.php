@@ -2,7 +2,7 @@
 /* +----------------------------------------------------------------------+
  * | SMS_Clickatell                                                       |
  * +----------------------------------------------------------------------+
- * | Copyright (c) 2002-2004 Jacques Marneweck                            |
+ * | Copyright (c) 2002-2005 Jacques Marneweck                            |
  * +----------------------------------------------------------------------+
  * | This source file is subject to version 3.0 of the PHP license,       |
  * | that is bundled with this package in the file LICENSE, and is        |
@@ -22,8 +22,8 @@ require_once 'PEAR.php';
  * PHP Interface into Clickatell API
  *
  * @author	Jacques Marneweck <jacques@php.net>
- * @copyright	2002-2004 Jacques Marneweck
- * @version	$Id: Clickatell.php,v 1.21 2004/11/13 17:36:35 jacques Exp $
+ * @copyright	2002-2005 Jacques Marneweck
+ * @version	$Id: Clickatell.php,v 1.23 2005/01/29 10:34:26 jacques Exp $
  * @access	public
  * @package	SMS
  */
@@ -341,6 +341,28 @@ class SMS_Clickatell {
 	/**
 	 * Initilaise the Clicaktell SMS Class
 	 *
+	 * <code>
+	 * <?php
+	 * require_once 'SMS/Clickatell.php';
+	 *
+	 * $sms = new SMS_Clickatell;
+ 	 * $res = $sms->init (
+	 *	array (
+	 *		'user' => 'username',
+	 *		'pass' => 'password',
+	 *		'api_id' => '12345'
+	 * 	)
+	 * );
+	 * if (PEAR::isError($res)) {
+	 * 	die ($res->getMessage());
+	 * }
+	 * $res = $sms->auth();
+	 * if (PEAR::isError($res)) {
+	 *	die ($res->getMessage());
+	 * }
+	 * ?>
+	 * </code>
+	 *
 	 * @access	public
 	 * @since	1.9
 	 */
@@ -577,6 +599,64 @@ class SMS_Clickatell {
 
 		if ($send[0] == "ID") {
 			return array ("1", trim($send[1]));
+		} else {
+			return PEAR::raiseError($response['data']);
+		}
+	}
+
+	/**
+	 * Spend a clickatell voucher which can be used for topping up of
+	 * sub user accounts.
+	 *
+	 * @param	string	voucher number
+	 * @access	public
+	 * @since	1.22
+	 * @see		http://www.clickatell.com/downloads/Clickatell_http_2.2.4.pdf
+	 */
+	function tokenpay ($voucher) {
+		$_url = $this->_api_server . "/http/token_pay";
+		$_post_data = "session_id=" . $this->_session_id . "&token=" . trim($voucher);
+
+		if (strlen($voucher) < 16 || strlen($voucher) > 16) {
+			return (PEAR::raiseError('Invalid voucher number'));
+		}
+
+		$this->_fp = tmpfile();
+		$_curl = curl_init();
+		curl_setopt($_curl, CURLOPT_URL, $_url);
+		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
+		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
+		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 0);
+		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
+		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
+
+		$status = curl_exec($_curl);
+		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
+
+		if ($status) {
+			$response['error'] = curl_error($_curl);
+			$response['errno'] = curl_errno($_curl);
+		}
+
+		curl_close($_curl);
+		rewind($this->_fp);
+
+		$pairs = "";
+		while ($str = fgets($this->_fp, 4096)) {
+			$pairs .= $str;
+		}
+		fclose($this->_fp);
+
+		$response['data'] = $pairs;
+		unset($pairs);
+		asort($response);
+		$sess = split(":", $response['data']);
+
+		$paid = preg_split("/[\s:]+/", $response['data']);
+		if ($paid[0] == "OK") {
+			return true; 
 		} else {
 			return PEAR::raiseError($response['data']);
 		}

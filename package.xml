@@ -13,13 +13,13 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.5</version>
-    <date>2004-11-13</date>
+    <version>0.6</version>
+    <date>2005-01-29</date>
     <license>PHP License</license>
     <state>beta</state>
     <notes>
- * Added function getmsgcharge() to get cost of message delivered via
-   Clickatell gateway.
+ * Added function tokenpay() to spend vouchers generated on the Clickatell
+   Website.
     </notes>
     <provides type="class" name="SMS_Clickatell" />
     <provides type="function" name="SMS_Clickatell::auth" />
@@ -30,11 +30,20 @@
     <provides type="function" name="SMS_Clickatell::ping" />
     <provides type="function" name="SMS_Clicaktell::querymsg" />
     <provides type="function" name="SMS_Clickatell::sendmsg" />
+    <provides type="function" name="SMS_Clickatell::tokenpay" />
     <filelist>
-      <file role="php" baseinstalldir="SMS" md5sum="2cbd6f411fbe36cb080c71e9702279bc" name="Clickatell.php" />
+      <file role="php" baseinstalldir="SMS" md5sum="c405dbecdbf735a15b093b63cfa7cf13" name="Clickatell.php" />
     </filelist>
   </release>
   <changelog>
+    <release>
+      <version>0.6</version>
+      <state>beta</state>
+      <notes>
+ * Added function tokenpay() to spend vouchers generated on the Clickatell
+   Website.
+      </notes>
+    </release>
     <release>
       <version>0.5</version>
       <state>beta</state>
