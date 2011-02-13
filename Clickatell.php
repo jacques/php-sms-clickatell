@@ -22,7 +22,7 @@ require_once 'PEAR.php';
  * PHP Interface into Clickatell API
  *
  * @author	Jacques Marneweck <jacques@php.net>
- * @version	$Id: Clickatell.php,v 1.8 2003/12/27 22:31:33 jacques Exp $
+ * @version	$Id: Clickatell.php,v 1.10 2004/01/30 11:09:55 jacques Exp $
  * @access	public
  * @package	SMS
  */
@@ -38,25 +38,25 @@ class SMS_Clickatell {
 	 * Clickatell API Server Session ID
 	 * @var string
 	 */
-	var $_session_id;
+	var $_session_id = null;
 
 	/**
 	 * Username from Clickatell used for authentication purposes
 	 * @var string
 	 */
-	var $_username = "";
+	var $_username = null;
 
 	/**
-	 * Password for Clickatell Username
+	 * Password for Clickatell Usernaem
 	 * @var string
 	 */
-	var $_password = "";
+	var $_password = null;
 
 	/**
 	 * Clickatell API Server ID
 	 * @var string
 	 */
-	var $_api_id = "";
+	var $_api_id = null;
 
 	/**
 	 * Temporary file resource id
@@ -179,6 +179,88 @@ class SMS_Clickatell {
 			return (true);
 		} else {
 			return PEAR::raiseError($response['data']);
+		}
+	}
+
+	/**
+	 * Query balance of remaining SMS credits
+	 *
+	 * @access	public
+	 * @since	1.9
+	 */
+	/**
+	 * Get balance
+	 *
+	 * @since
+	 */
+	function getbalance () {
+		$_url = $this->_api_server . "/http/getbalance";
+		$_post_data = "session_id=" . $this->_session_id;
+
+		$this->_fp = tmpfile();
+		$_curl = curl_init();
+		curl_setopt($_curl, CURLOPT_URL, $_url);
+		curl_setopt($_curl, CURLOPT_TIMEOUT, 20);
+		curl_setopt($_curl, CURLOPT_FILE, $this->_fp);
+		curl_setopt($_curl, CURLOPT_POSTFIELDS, $_post_data);
+		curl_setopt($_curl, CURLOPT_VERBOSE, 1);
+		curl_setopt($_curl, CURLOPT_FAILONERROR, 1);
+		curl_setopt($_curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($_curl, CURLOPT_COOKIEJAR, "/dev/null");
+
+		$status = curl_exec($_curl);
+		$response['http_code'] = curl_getinfo($_curl, CURLINFO_HTTP_CODE);
+
+		if ($status) {
+			$response['error'] = curl_error($_curl);
+			$response['errno'] = curl_errno($_curl);
+		}
+		curl_close($_curl);
+
+		rewind($this->_fp);
+
+		$pairs = "";
+		while ($str = fgets($this->_fp, 4096)) {
+			$pairs .= $str;
+		}
+		fclose($this->_fp);
+
+		$response['data'] = $pairs;
+		asort($response);
+		$send = split(":", $response['data']);
+
+		if ($send[0] == "Credit") {
+			return trim($send[1]);
+		} else {
+			return PEAR::raiseError($response['data']);
+		}
+	}
+
+	/**
+	 * Initilaise the Clicaktell SMS Class
+	 *
+	 * @access	public
+	 * @since	1.9
+	 */
+	function init ($_params = array()) {
+		if (is_array($_params)) {
+			if (!isset($_params['user'])) {
+				return PEAR::raiseError('Missing parameter user.');
+			}
+
+			if (!isset($_params['pass'])) {
+				return PEAR::raiseError('Missing parameter pass.');
+			}
+
+			if (!isset($_params['api_id'])) {
+				return PEAR::raiseError('Missing parameter api_id.');
+			}
+
+			$this->_username = $_params['user'];
+			$this->_password = $_params['pass'];
+			$this->_api_id = $_params['api_id'];
+		} else {
+			return PEAR::raiseError('You need to specify paramaters for authenticating to Clickatell.');
 		}
 	}
 
