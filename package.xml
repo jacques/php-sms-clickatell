@@ -12,18 +12,14 @@
    <email>jacques@php.net</email>
    <role>lead</role>
   </maintainer>
-  </maintainers>
+ </maintainers>
  <release>
-  <version>0.6.3</version>
-  <date>2008-04-15</date>
+  <version>0.6.4</version>
+  <date>2012-03-21</date>
   <license>PHP License</license>
   <state>beta</state>
-  <notes>* Bug fixes in sendmsg ()
-* Added SMS_Clickatell::routecoverage function to query if a msisdn is
-  routable via Clickatell
-* Refactoring to work only with PHP 5
-* Work out the actual required features so clickatells updated routing
-  engine can be less problematic
+  <notes>
+    * Using preg_split instead of split as split has been deprecated in PHP Core.
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.4.0"/>
@@ -47,6 +43,13 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+     <version>0.6.4</version>
+     <date>2012-03-21</date>
+     <notes>
+       * Using preg_split instead of split as split has been deprecated in PHP Core.
+     </notes>
+   </release>
    <release>
     <version>0.6.3</version>
     <date>2008-04-15</date>
