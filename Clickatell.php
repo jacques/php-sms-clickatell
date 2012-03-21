@@ -7,7 +7,7 @@
  * | This source file is subject to version 3.0 of the PHP license,       |
  * | that is bundled with this package in the file LICENSE, and is        |
  * | available at through the world-wide-web at                           |
- * | http://www.php.net/license/3_0.txt.                                  |
+ * | http://www.php.net/license/3_01.txt.                                 |
  * | If you did not receive a copy of the PHP license and are unable to   |
  * | obtain it through the world-wide-web, please send a note to          |
  * | license@php.net so we can mail you a copy immediately.               |
@@ -22,8 +22,8 @@ require_once 'PEAR.php';
  * PHP Interface into the Clickatell API
  *
  * @author      Jacques Marneweck <jacques@php.net>
- * @copyright   2002-2008 Jacques Marneweck.  All rights reserved.
- * @license     http://www.php.net/license/3_0.txt  PHP License
+ * @copyright   2002-2012 Jacques Marneweck.  All rights reserved.
+ * @license     http://www.php.net/license/3_01.txt  PHP License
  * @access      public
  * @package     SMS
  */
