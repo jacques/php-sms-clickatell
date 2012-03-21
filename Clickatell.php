@@ -2,7 +2,7 @@
 /* +----------------------------------------------------------------------+
  * | SMS_Clickatell                                                       |
  * +----------------------------------------------------------------------+
- * | Copyright (c) 2002-2008 Jacques Marneweck                            |
+ * | Copyright (c) 2002-2012 Jacques Marneweck                            |
  * +----------------------------------------------------------------------+
  * | This source file is subject to version 3.0 of the PHP license,       |
  * | that is bundled with this package in the file LICENSE, and is        |
@@ -24,7 +24,6 @@ require_once 'PEAR.php';
  * @author      Jacques Marneweck <jacques@php.net>
  * @copyright   2002-2008 Jacques Marneweck.  All rights reserved.
  * @license     http://www.php.net/license/3_0.txt  PHP License
- * @version     $Id: Clickatell.php 97 2008-04-15 11:14:57Z jacques $
  * @access      public
  * @package     SMS
  */
@@ -48,7 +47,7 @@ class SMS_Clickatell {
     private $_username = null;
 
     /**
-     * Password for Clickatell Usernaem
+     * Password for Clickatell Username
      * @var string
      */
     private $_password = null;
@@ -171,7 +170,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $sess = split(":", $response['data']);
+        $sess = preg_split("/:/", $response['data']);
 
         $this->_session_id = trim($sess[1]);
 
@@ -198,7 +197,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $sess = split(":", $response['data']);
+        $sess = preg_split("/:/", $response['data']);
 
         $deleted = preg_split("/[\s:]+/", $response['data']);
         if ($deleted[0] == "ID") {
@@ -222,7 +221,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $send = split(":", $response['data']);
+        $send = preg_split(":", $response['data']);
 
         if ($send[0] == "Credit") {
             return trim($send[1]);
@@ -337,7 +336,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $sess = split(":", $response['data']);
+        $sess = preg_split("/:/", $response['data']);
 
         if ($sess[0] == "OK") {
             return (true);
@@ -362,7 +361,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $status = split(" ", $response['data']);
+        $status = preg_split("/ /", $response['data']);
 
         if ($status[0] == "ID:") {
             return (trim($status[3]));
@@ -386,7 +385,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $status = split(" ", $response['data']);
+        $status = preg_split("/ /", $response['data']);
 
         if ($status[0] == "OK:") {
             return (array(true, trim($status[count($status)-1])));
@@ -493,7 +492,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $send = split(":", $response['data']);
+        $send = preg_split("/:/", $response['data']);
 
         if ($send[0] == "ID") {
             return array ("1", trim($send[1]));
@@ -523,7 +522,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $sess = split(":", $response['data']);
+        $sess = preg_split("/:/", $response['data']);
 
         $paid = preg_split("/[\s:]+/", $response['data']);
         if ($paid[0] == "OK") {
@@ -591,7 +590,6 @@ class SMS_Clickatell {
         $response['data'] = $pairs;
         unset($pairs);
         asort($response);
-
         return ($response);
     }
 }
