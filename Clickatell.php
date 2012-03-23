@@ -102,6 +102,12 @@ class SMS_Clickatell {
         '114' => 'Cannot route message',
         '115' => 'Message Expired',
         '116' => 'Invalid Unicode Data',
+        '120' => 'Invalid delivery date',
+        '121' => 'Destination mobile number blocked',
+        '122' => 'Destination mobile opted out',
+        '123' => 'Invalid Sender ID',
+        '128' => 'Number delisted',
+        '130' => 'Maximum MT limitexceeded until <UNIXTIME STAMP>',
         '201' => 'Invalid batch ID',
         '202' => 'No batch template',
         '301' => 'No credit left',
@@ -221,7 +227,7 @@ class SMS_Clickatell {
         if (PEAR::isError($response)) {
             return $response;
         }
-        $send = preg_split(":", $response['data']);
+        $send = preg_split("/:/", $response['data']);
 
         if ($send[0] == "Credit") {
             return trim($send[1]);
@@ -540,7 +546,7 @@ class SMS_Clickatell {
      * @return  mixed   HTTP response body or PEAR Error Object
      * @access  private
      */
-    private function _curl ($url, $post_data) {
+    public function _curl ($url, $post_data) {
         /**
          * Reuse the curl handle
          */
