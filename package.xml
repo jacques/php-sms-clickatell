@@ -20,6 +20,7 @@
   <state>beta</state>
   <notes>
     * Using preg_split instead of split as split has been deprecated in PHP Core.
+    * More error codes added from updated Clickatell documentation.
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.4.0"/>
@@ -45,9 +46,10 @@
  <changelog>
    <release>
      <version>0.6.4</version>
-     <date>2012-03-21</date>
+     <date>2012-03-23</date>
      <notes>
        * Using preg_split instead of split as split has been deprecated in PHP Core.
+       * More error codes added from updated Clickatell documentation.
      </notes>
    </release>
    <release>
