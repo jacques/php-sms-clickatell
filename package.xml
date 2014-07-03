@@ -14,13 +14,13 @@
   </maintainer>
  </maintainers>
  <release>
-  <version>0.6.4</version>
-  <date>2012-03-21</date>
+  <version>0.7.0</version>
+  <date>2014-07-xx</date>
   <license>PHP License</license>
   <state>beta</state>
   <notes>
-    * Using preg_split instead of split as split has been deprecated in PHP Core.
-    * More error codes added from updated Clickatell documentation.
+    * Throw Exceptions instead of raising PEAR_Errors.
+    * Fixed the Clickatell Documenation link seeing they no longer contain the documents version number in the document name.
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.4.0"/>
@@ -44,6 +44,14 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+     <version>0.7.0</version>
+     <date>2013-07-xx</date>
+     <notes>
+       * Throw Exceptions instead of raising PEAR_Errors.
+       * Fixed the Clickatell Documenation link seeing they no longer contain the documents version number in the document name.
+     </notes>
+   </release>
    <release>
      <version>0.6.4</version>
      <date>2012-03-23</date>
