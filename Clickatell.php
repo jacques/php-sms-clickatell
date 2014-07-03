@@ -2,7 +2,7 @@
 /* +----------------------------------------------------------------------+
  * | SMS_Clickatell                                                       |
  * +----------------------------------------------------------------------+
- * | Copyright (c) 2002-2012 Jacques Marneweck                            |
+ * | Copyright (c) 2002-2014 Jacques Marneweck                            |
  * +----------------------------------------------------------------------+
  * | This source file is subject to version 3.0 of the PHP license,       |
  * | that is bundled with this package in the file LICENSE, and is        |
@@ -16,13 +16,11 @@
  * +----------------------------------------------------------------------+
  */
 
-require_once 'PEAR.php';
-
 /**
  * PHP Interface into the Clickatell API
  *
  * @author      Jacques Marneweck <jacques@php.net>
- * @copyright   2002-2012 Jacques Marneweck.  All rights reserved.
+ * @copyright   2002-2014 Jacques Marneweck.  All rights reserved.
  * @license     http://www.php.net/license/3_01.txt  PHP License
  * @access      public
  * @package     SMS
@@ -173,7 +171,7 @@ class SMS_Clickatell {
         $_post_data = "user=" . $this->_username . "&password=" . $this->_password . "&api_id=" . $this->_api_id;
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $sess = preg_split("/:/", $response['data']);
@@ -183,7 +181,7 @@ class SMS_Clickatell {
         if ($sess[0] == "OK") {
             return (true);
         } else {
-            return PEAR::raiseError($response['data']);
+            throw new Exception($response['data']);
         }
     }
 
@@ -200,7 +198,7 @@ class SMS_Clickatell {
         $_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . $apimsgid;
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $sess = preg_split("/:/", $response['data']);
@@ -209,7 +207,7 @@ class SMS_Clickatell {
         if ($deleted[0] == "ID") {
             return (array($deleted[1], $deleted[3]));
         } else {
-            return PEAR::raiseError($response['data']);
+            throw new Exception($response['data']);
         }
     }
 
@@ -224,7 +222,7 @@ class SMS_Clickatell {
         $_post_data = "session_id=" . $this->_session_id;
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $send = preg_split("/:/", $response['data']);
@@ -232,7 +230,7 @@ class SMS_Clickatell {
         if ($send[0] == "Credit") {
             return trim($send[1]);
         } else {
-            return PEAR::raiseError($response['data']);
+            throw new Exception($response['data']);
         }
     }
 
@@ -248,11 +246,11 @@ class SMS_Clickatell {
         $_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . trim($apimsgid);
 
         if (32 != strlen($apimsgid)) {
-            return PEAR::raiseError('Invalid API Message Id');
+            throw new Exception('Invalid API Message Id');
         }
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $charge = preg_split("/[\s:]+/", $response['data']);
@@ -274,20 +272,18 @@ class SMS_Clickatell {
      * <?php
      * require_once 'SMS/Clickatell.php';
      *
-     * $sms = new SMS_Clickatell;
-     * $res = $sms->init (
-     *  array (
-     *      'user' => 'username',
-     *      'pass' => 'password',
-     *      'api_id' => '12345'
-     *  )
-     * );
-     * if (PEAR::isError($res)) {
-     *  die ($res->getMessage());
-     * }
-     * $res = $sms->auth();
-     * if (PEAR::isError($res)) {
-     *  die ($res->getMessage());
+     * try {
+     *   $sms = new SMS_Clickatell;
+     *   $res = $sms->init(
+     *     array (
+     *       'user' => 'username',
+     *       'pass' => 'password',
+     *       'api_id' => '12345'
+     *     )
+     *   );
+     *   $res = $sms->auth();
+     * } Catch (Exception $e) {
+     *   die ($e->getMessage());
      * }
      * ?>
      * </code>
@@ -295,24 +291,25 @@ class SMS_Clickatell {
      * @param   array   array of parameters
      * @return  mixed   void if valid else a PEAR Error
      * @access  public
+     * @throws  Exception
      * @since   1.9
      */
     public function init ($_params = array()) {
         if (is_array($_params)) {
             if (!isset($_params['user'])) {
-                return PEAR::raiseError('Missing parameter user.');
+                throw new Exception('Missing parameter user.');
             }
 
             if (!isset($_params['pass'])) {
-                return PEAR::raiseError('Missing parameter pass.');
+                throw new Exception('Missing parameter pass.');
             }
 
             if (!isset($_params['api_id'])) {
-                return PEAR::raiseError('Missing parameter api_id.');
+                throw new Exception('Missing parameter api_id.');
             }
 
             if (!is_numeric($_params['api_id'])) {
-                return PEAR::raiseError('Invalid api_id.');
+                throw new Exception('Invalid api_id.');
             }
 
             if (isset($_params['debug'])) {
@@ -323,7 +320,7 @@ class SMS_Clickatell {
             $this->_password = $_params['pass'];
             $this->_api_id = $_params['api_id'];
         } else {
-            return PEAR::raiseError('You need to specify paramaters for authenticating to Clickatell.');
+            throw new Exception('You need to specify paramaters for authenticating to Clickatell.');
         }
     }
 
@@ -339,7 +336,7 @@ class SMS_Clickatell {
         $_post_data = "session_id=" . $this->_session_id;
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $sess = preg_split("/:/", $response['data']);
@@ -347,7 +344,7 @@ class SMS_Clickatell {
         if ($sess[0] == "OK") {
             return (true);
         } else {
-            return PEAR::raiseError($response['data']);
+            throw new Exception($response['data']);
         }
     }
 
@@ -364,7 +361,7 @@ class SMS_Clickatell {
         $_post_data = "session_id=" . $this->_session_id . "&apimsgid=" . $apimsgid;
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $status = preg_split("/ /", $response['data']);
@@ -372,7 +369,7 @@ class SMS_Clickatell {
         if ($status[0] == "ID:") {
             return (trim($status[3]));
         } else {
-            return PEAR::raiseError($response['data']);
+            throw new Exception($response['data']);
         }
     }
 
@@ -388,7 +385,7 @@ class SMS_Clickatell {
         $_post_data = "session_id=" . $this->_session_id . "&msisdn=" . $msisdn;
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $status = preg_split("/ /", $response['data']);
@@ -428,7 +425,7 @@ class SMS_Clickatell {
         }
 
         if (!in_array($_msg['msg_type'], $this->_msg_types)) {
-            return PEAR::raiseError("Invalid message type. Message ID is " . $_msg['id']);
+            throw new Exception("Invalid message type. Message ID is " . $_msg['id']);
         }
 
         if ($_msg['msg_type'] != "SMS_TEXT") {
@@ -495,7 +492,7 @@ class SMS_Clickatell {
         }
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $send = preg_split("/:/", $response['data']);
@@ -503,7 +500,7 @@ class SMS_Clickatell {
         if ($send[0] == "ID") {
             return array ("1", trim($send[1]));
         } else {
-            return PEAR::raiseError($response['data']);
+            throw new Exception($response['data']);
         }
     }
 
@@ -525,7 +522,7 @@ class SMS_Clickatell {
         }
 
         $response = $this->_curl($_url, $_post_data);
-        if (PEAR::isError($response)) {
+        if ($response instanceof PEAR_Error) {
             return $response;
         }
         $sess = preg_split("/:/", $response['data']);
@@ -534,7 +531,7 @@ class SMS_Clickatell {
         if ($paid[0] == "OK") {
             return true; 
         } else {
-            return PEAR::raiseError($response['data']);
+            throw new Exception($response['data']);
         }
     }
 
@@ -553,7 +550,7 @@ class SMS_Clickatell {
         if (!is_resource($this->_ch)) {
             $this->_ch = curl_init();
             if (!$this->_ch || !is_resource($this->_ch)) {
-                return PEAR::raiseError('Cannot initialise a new curl handle.');
+                throw new Exception('Cannot initialise a new curl handle.');
             }
             curl_setopt($this->_ch, CURLOPT_TIMEOUT, 20);
             curl_setopt($this->_ch, CURLOPT_VERBOSE, $this->debug);
@@ -575,9 +572,9 @@ class SMS_Clickatell {
         $response['http_code'] = curl_getinfo($this->_ch, CURLINFO_HTTP_CODE);
 
         if (empty($response['http_code'])) {
-            return PEAR::raiseError ('No HTTP Status Code was returned.');
+            throw new Exception ('No HTTP Status Code was returned.');
         } elseif ($response['http_code'] === 0) {
-            return PEAR::raiseError ('Cannot connect to the Clickatell API Server.');
+            throw new Exception ('Cannot connect to the Clickatell API Server.');
         }
 
         if ($status) {
