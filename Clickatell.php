@@ -558,7 +558,7 @@ class SMS_Clickatell {
             curl_setopt($this->_ch, CURLOPT_FOLLOWLOCATION, ini_get('safe_mode') ? false : true);
             curl_setopt($this->_ch, CURLOPT_COOKIEJAR, "/dev/null");
             curl_setopt($this->_ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($this->_ch, CURLOPT_USERAGENT, 'SMS_Clickatell 0.6.3-alpha - http://www.powertrip.co.za/PEAR/SMS_Clickatell/');
+            curl_setopt($this->_ch, CURLOPT_USERAGENT, 'SMS_Clickatell 0.7.0-alpha - http://www.powertrip.co.za/PEAR/SMS_Clickatell/');
         }
 
         $this->_fp = tmpfile();
