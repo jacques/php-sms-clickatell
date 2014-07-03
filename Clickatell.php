@@ -191,7 +191,7 @@ class SMS_Clickatell {
      *
      * @access  public
      * @since   1.14
-     * @see     http://www.clickatell.com/downloads/Clickatell_http_2.2.2.pdf
+     * @see     http://www.clickatell.com/downloads/http/Clickatell_HTTP.pdf
      */
     public function deletemsg ($apimsgid) {
         $_url = $this->_api_server . "/http/delmsg";
@@ -511,7 +511,7 @@ class SMS_Clickatell {
      * @param   string  voucher number
      * @access  public
      * @since   1.22
-     * @see     http://www.clickatell.com/downloads/Clickatell_http_2.2.4.pdf
+     * @see     http://www.clickatell.com/downloads/http/Clickatell_HTTP.pdf
      */
     public function tokenpay ($voucher) {
         $_url = $this->_api_server . "/http/token_pay";
