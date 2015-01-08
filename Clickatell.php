@@ -162,6 +162,11 @@ class SMS_Clickatell {
     const FEAT_CONCAT   = 16384;
 
     /**
+     * Optional features
+     */
+    private $deliv_ack = true;
+
+    /**
      * Authenticate to the Clickatell API Server.
      *
      * @return mixed true on sucess or PEAR_Error object
@@ -472,7 +477,9 @@ class SMS_Clickatell {
         /**
          * Delivery Acknowledgments
          */
-        $req_feat += self::FEAT_DELIVACK;
+        if ($this->deliv_ack == true) {
+            $req_feat += self::FEAT_DELIVACK;
+        }
 
         if (!empty($req_feat)) {
             $_post_data .= "&req_feat=" . $req_feat;
@@ -597,6 +604,16 @@ class SMS_Clickatell {
         unset($pairs);
         asort($response);
         return ($response);
+    }
+
+    /**
+     * Turn on or off Delivery Acknowledgements
+     *
+     * @param   bool    On or Off
+     * @access  public
+     */
+    public function setdeliveryack($value) {
+        $this->deliv_ack = $value;
     }
 }
 
