@@ -1,0 +1,15 @@
+{
+    "name": "jacques/php-sms-clickatell",
+    "autoload": {
+        "psr-0": {
+            "": ""
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jacques Marneweck",
+            "email": "jacques@powertrip.co.za"
+        }
+    ]
+}
