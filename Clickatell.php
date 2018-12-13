@@ -2,7 +2,7 @@
 /* +----------------------------------------------------------------------+
  * | SMS_Clickatell                                                       |
  * +----------------------------------------------------------------------+
- * | Copyright (c) 2002-2012 Jacques Marneweck                            |
+ * | Copyright (c) 2002-2018 Jacques Marneweck                            |
  * +----------------------------------------------------------------------+
  * | This source file is subject to version 3.0 of the PHP license,       |
  * | that is bundled with this package in the file LICENSE, and is        |
@@ -22,7 +22,7 @@ require_once 'PEAR.php';
  * PHP Interface into the Clickatell API
  *
  * @author      Jacques Marneweck <jacques@php.net>
- * @copyright   2002-2012 Jacques Marneweck.  All rights reserved.
+ * @copyright   2002-2018 Jacques Marneweck.  All rights reserved.
  * @license     http://www.php.net/license/3_01.txt  PHP License
  * @access      public
  * @package     SMS
@@ -432,12 +432,16 @@ class SMS_Clickatell {
             $_post_data .= "&" . implode("&", $extras);
         }
 
-        if (!in_array($_msg['msg_type'], $this->_msg_types)) {
-            return PEAR::raiseError("Invalid message type. Message ID is " . $_msg['id']);
-        }
+        if (array_key_exists('msg_type', $_msg)) {
+            if (!in_array($_msg['msg_type'], $this->_msg_types)) {
+                return PEAR::raiseError("Invalid message type. Message ID is " . $_msg['id']);
+            }
 
-        if ($_msg['msg_type'] != "SMS_TEXT") {
-            $_post_data .= "&msg_type=" . $_msg['msg_type'];
+            if ($_msg['msg_type'] != "SMS_TEXT") {
+                $_post_data .= "&msg_type=" . $_msg['msg_type'];
+            }
+        } else {
+            $_msg['msg_type'] = 'SMS_TEXT';
         }
 
         /**
