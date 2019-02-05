@@ -276,9 +276,9 @@ class SMS_Clickatell
         }
 
         /*
-         * Return charge and message status
+         * Return error.
          */
-        return [$charge[3], $charge[5]];
+        return PEAR::raiseError($response['data']);
     }
 
     /**
