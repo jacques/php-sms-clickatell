@@ -2,7 +2,7 @@
     "name": "jacques/php-sms-clickatell",
     "autoload": {
         "psr-0": {
-            "": ""
+            "SMS": ""
         }
     },
     "license": "MIT",
