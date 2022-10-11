@@ -2,7 +2,7 @@
 /* +----------------------------------------------------------------------+
  * | SMS_Clickatell                                                       |
  * +----------------------------------------------------------------------+
- * | Copyright (c) 2002-2018 Jacques Marneweck                            |
+ * | Copyright (c) 2002-2022 Jacques Marneweck                            |
  * +----------------------------------------------------------------------+
  * | This source file is subject to version 3.0 of the PHP license,       |
  * | that is bundled with this package in the file LICENSE, and is        |
@@ -22,7 +22,7 @@ require_once 'PEAR.php';
  * PHP Interface into the Clickatell API.
  *
  * @author      Jacques Marneweck <jacques@php.net>
- * @copyright   2002-2018 Jacques Marneweck.  All rights reserved.
+ * @copyright   2002-2022 Jacques Marneweck.  All rights reserved.
  * @license     http://www.php.net/license/3_01.txt  PHP License
  */
 class SMS_Clickatell
@@ -139,8 +139,15 @@ class SMS_Clickatell
         '010' => 'Message expired',
         '011' => 'Message queued for later delivery',
         '012' => 'Out of credit',
+        '013' => 'Clickatell cancelled message delivery',
+        '014' => 'Maximum MT limit exceeded',
     ];
 
+    /**
+     * Message Types.
+     *
+     * @var array
+     */
     protected $_msg_types = [
         'SMS_TEXT',
         'SMS_FLASH',
